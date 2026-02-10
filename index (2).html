@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soulfee — Coffee for the Soul</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,700&family=Outfit:wght@200;300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --green-deep: #0b1a0e;
+  --green-dark: #0f2515;
+  --green-rich: #14311a;
+  --green-mid: #1e4d28;
+  --green-accent: #2d7a3a;
+  --green-light: #5aad68;
+  --cream: #faf5e8;
+  --cream-soft: #f3edd8;
+  --ivory: #fffdf5;
+  --yellow-warm: #e8d5a3;
+  --yellow-pale: #f5ecc8;
+  --gold: #c9a84c;
+  --white: #fffef9;
+  --text-cream: rgba(250, 245, 232, 0.85);
+  --text-muted: rgba(250, 245, 232, 0.4);
+}
+html { scroll-behavior: smooth; }
+body { font-family: 'Outfit', sans-serif; background: var(--green-deep); color: var(--cream); overflow-x: hidden; }
+
+.cursor-dot { width: 8px; height: 8px; background: var(--cream); border-radius: 50%; position: fixed; pointer-events: none; z-index: 10000; mix-blend-mode: difference; }
+.cursor-ring { width: 44px; height: 44px; border: 1.5px solid var(--cream); border-radius: 50%; position: fixed; pointer-events: none; z-index: 10000; transition: all 0.2s ease-out; opacity: 0.4; }
+.cursor-ring.hover { transform: scale(2); opacity: 0.15; background: var(--cream); }
+
+body::after { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E"); pointer-events: none; z-index: 9999; }
+
+.loader { position: fixed; inset: 0; background: var(--green-deep); z-index: 9998; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 30px; transition: opacity 0.9s cubic-bezier(0.76,0,0.24,1), visibility 0.9s; }
+.loader.hidden { opacity: 0; visibility: hidden; }
+.loader-brand { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.loader-icon { width: 50px; height: 50px; position: relative; }
+.loader-icon::before { content: ''; position: absolute; width: 50px; height: 50px; border: 1.5px solid var(--cream); border-radius: 50%; }
+.loader-icon::after { content: ''; position: absolute; width: 22px; height: 22px; background: var(--cream); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+.loader-text { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 300; letter-spacing: 0.45em; text-transform: uppercase; color: var(--cream); }
+.loader-bar { width: 180px; height: 1px; background: rgba(250,245,232,0.1); overflow: hidden; }
+.loader-bar-fill { height: 100%; background: var(--cream); width: 0%; animation: loadBar 2s cubic-bezier(0.76,0,0.24,1) forwards; }
+@keyframes loadBar { to { width: 100%; } }
+
+nav { position: fixed; top: 0; width: 100%; z-index: 1000; padding: 30px 50px; display: flex; justify-content: space-between; align-items: center; transition: all 0.5s; }
+nav.scrolled { padding: 18px 50px; background: rgba(11,26,14,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+.nav-logo { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 1.6rem; color: var(--cream); letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; }
+.nav-links { display: flex; gap: 40px; align-items: center; }
+.nav-links a { font-family: 'Outfit', sans-serif; font-size: 0.78rem; font-weight: 400; color: var(--cream); text-decoration: none; letter-spacing: 0.12em; text-transform: uppercase; position: relative; padding-bottom: 3px; }
+.nav-links a::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 1px; background: var(--cream); transition: width 0.4s cubic-bezier(0.76,0,0.24,1); }
+.nav-links a:hover::after { width: 100%; }
+.nav-cta { background: var(--cream) !important; color: var(--green-deep) !important; padding: 11px 30px !important; border-radius: 30px; font-weight: 500 !important; transition: all 0.4s !important; }
+.nav-cta:hover { background: var(--ivory) !important; transform: scale(1.05); }
+.nav-cta::after { display: none !important; }
+
+.hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 0 50px; position: relative; overflow: hidden; }
+.hero-bg { position: absolute; inset: 0; overflow: hidden; }
+.hero-g1 { position: absolute; width: 900px; height: 900px; border-radius: 50%; background: radial-gradient(circle, rgba(45,122,58,0.2) 0%, transparent 70%); top: -300px; right: -200px; animation: hf1 25s ease-in-out infinite; }
+.hero-g2 { position: absolute; width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(circle, rgba(232,213,163,0.08) 0%, transparent 70%); bottom: -200px; left: -100px; animation: hf2 20s ease-in-out infinite; }
+.hero-g3 { position: absolute; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(250,245,232,0.04) 0%, transparent 70%); top: 40%; left: 50%; transform: translate(-50%,-50%); animation: hf3 15s ease-in-out infinite; }
+@keyframes hf1 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-30px,40px); } }
+@keyframes hf2 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(40px,-30px); } }
+@keyframes hf3 { 0%,100% { transform: scale(1); } 50% { transform: translate(-50%,-50%) scale(1.3); } }
+.hero-bean { position: absolute; width: 60px; height: 90px; border: 1px solid rgba(250,245,232,0.06); border-radius: 50%; }
+.hero-bean::after { content: ''; position: absolute; width: 1px; height: 60%; background: rgba(250,245,232,0.06); top: 20%; left: 50%; transform: translateX(-50%); }
+.hero-bean:nth-child(4) { top: 15%; left: 8%; transform: rotate(-45deg); }
+.hero-bean:nth-child(5) { bottom: 20%; right: 10%; transform: rotate(30deg); width: 45px; height: 65px; }
+.hero-bean:nth-child(6) { top: 60%; left: 5%; transform: rotate(60deg); width: 35px; height: 50px; }
+
+.hero-content { position: relative; z-index: 2; max-width: 1000px; }
+.hero-eyebrow { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--yellow-warm); margin-bottom: 35px; opacity: 0; animation: fadeUp 1s 2.2s forwards; }
+.hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(4rem,10vw,10rem); font-weight: 300; line-height: 0.95; letter-spacing: -0.03em; color: var(--ivory); margin-bottom: 10px; }
+.hero-title .line { display: block; overflow: hidden; }
+.hero-title .line-inner { display: block; transform: translateY(110%); animation: revealLine 1.3s cubic-bezier(0.76,0,0.24,1) forwards; }
+.hero-title .line:nth-child(1) .line-inner { animation-delay: 2.1s; }
+.hero-title .line:nth-child(2) .line-inner { animation-delay: 2.35s; }
+@keyframes revealLine { to { transform: translateY(0); } }
+.hero-title em { font-style: italic; font-weight: 300; color: var(--yellow-pale); }
+.hero-sub { font-size: 1.1rem; font-weight: 300; color: var(--text-cream); max-width: 480px; margin: 35px auto 50px; line-height: 1.75; opacity: 0; animation: fadeUp 1s 2.6s forwards; }
+.hero-ctas { display: flex; gap: 20px; justify-content: center; align-items: center; opacity: 0; animation: fadeUp 1s 2.9s forwards; }
+.btn-p { display: inline-flex; align-items: center; gap: 12px; background: var(--cream); color: var(--green-deep); font-family: 'Outfit'; font-size: 0.85rem; font-weight: 500; padding: 17px 40px; border-radius: 50px; text-decoration: none; letter-spacing: 0.06em; text-transform: uppercase; transition: all 0.4s; }
+.btn-p:hover { background: var(--ivory); transform: scale(1.05); box-shadow: 0 15px 50px rgba(250,245,232,0.1); }
+.btn-o { display: inline-flex; align-items: center; gap: 12px; border: 1px solid rgba(250,245,232,0.25); color: var(--cream); font-family: 'Outfit'; font-size: 0.85rem; font-weight: 400; padding: 16px 36px; border-radius: 50px; text-decoration: none; letter-spacing: 0.06em; text-transform: uppercase; transition: all 0.4s; }
+.btn-o:hover { border-color: var(--cream); background: rgba(250,245,232,0.05); }
+
+.scroll-ind { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px; opacity: 0; animation: fadeUp 1s 3.2s forwards; }
+.scroll-ind span { font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-muted); }
+.scroll-line { width: 1px; height: 50px; background: linear-gradient(to bottom, var(--cream), transparent); animation: scrollP 2s ease-in-out infinite; }
+@keyframes scrollP { 0%,100% { opacity:1; transform:scaleY(1); } 50% { opacity:0.2; transform:scaleY(0.5); } }
+@keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+
+.marquee { padding: 35px 0; border-top: 1px solid rgba(250,245,232,0.05); border-bottom: 1px solid rgba(250,245,232,0.05); overflow: hidden; background: var(--green-dark); }
+.marquee-track { display: flex; animation: mScroll 40s linear infinite; width: max-content; }
+.marquee-item { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 300; color: var(--text-muted); white-space: nowrap; padding: 0 40px; display: flex; align-items: center; gap: 40px; letter-spacing: 0.05em; }
+.marquee-item .dot { width: 5px; height: 5px; background: var(--green-accent); border-radius: 50%; flex-shrink: 0; }
+@keyframes mScroll { to { transform: translateX(-50%); } }
+
+/* ═══ CREAM STORY SECTION ═══ */
+.cream-band { background: var(--cream); padding: 120px 50px; color: var(--green-deep); position: relative; overflow: hidden; }
+.cream-band::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse at 30% 50%, rgba(201,168,76,0.08), transparent 60%); pointer-events:none; }
+.cream-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: center; position: relative; }
+.cream-text h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.5rem,4.5vw,4rem); font-weight: 400; line-height: 1.15; color: var(--green-deep); margin-bottom: 30px; letter-spacing: -0.02em; }
+.cream-text h2 em { font-style: italic; color: var(--green-mid); }
+.cream-text p { font-size: 1.05rem; line-height: 1.8; color: rgba(11,26,14,0.6); font-weight: 300; margin-bottom: 35px; }
+.cream-feats { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+.cream-feat { padding: 25px 0; border-top: 1px solid rgba(11,26,14,0.1); }
+.cream-feat h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--green-deep); margin-bottom: 6px; }
+.cream-feat p { font-size: 0.85rem; color: rgba(11,26,14,0.5); font-weight: 300; line-height: 1.5; margin: 0; }
+
+.cream-vis { display: flex; align-items: center; justify-content: center; }
+.cup-c { width: 320px; height: 380px; position: relative; display: flex; align-items: center; justify-content: center; }
+.cup-o { width: 280px; height: 280px; border: 1px solid rgba(11,26,14,0.1); border-radius: 50%; position: absolute; animation: rot 30s linear infinite; }
+.cup-m { width: 220px; height: 220px; border: 1px solid rgba(11,26,14,0.06); border-radius: 50%; position: absolute; animation: rot 22s linear infinite reverse; }
+.cup-i { width: 150px; height: 150px; background: var(--green-deep); border-radius: 50%; position: absolute; display: flex; align-items: center; justify-content: center; box-shadow: 0 30px 80px rgba(11,26,14,0.2); }
+.cup-i span { font-family: 'Cormorant Garamond', serif; font-size: 0.85rem; color: var(--cream); letter-spacing: 0.2em; text-transform: uppercase; font-weight: 300; }
+.cup-a { position: absolute; font-family: 'Space Mono', monospace; font-size: 0.58rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(11,26,14,0.2); }
+.cup-a:nth-of-type(1) { top: 20px; right: 0; }
+.cup-a:nth-of-type(2) { bottom: 30px; left: 10px; }
+@keyframes rot { to { transform: rotate(360deg); } }
+
+/* ═══ DARK SECTIONS ═══ */
+section { padding: 140px 50px; }
+.s-label { font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--green-light); margin-bottom: 20px; display: flex; align-items: center; gap: 14px; }
+.s-label::before { content:''; width: 25px; height: 1px; background: var(--green-light); }
+.s-head { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.5rem,5vw,4.5rem); font-weight: 400; line-height: 1.12; letter-spacing: -0.02em; color: var(--ivory); max-width: 800px; margin-bottom: 60px; }
+.s-head em { font-style: italic; color: var(--yellow-pale); }
+
+/* Origins */
+.origins { background: var(--green-deep); }
+.og { display: grid; grid-template-columns: repeat(3,1fr); gap: 30px; }
+.oc { background: linear-gradient(165deg, rgba(20,49,26,0.6), rgba(15,37,21,0.3)); border: 1px solid rgba(250,245,232,0.04); border-radius: 20px; padding: 50px 40px; position: relative; overflow: hidden; transition: all 0.5s; cursor: pointer; }
+.oc::before { content:''; position:absolute; inset:0; background: linear-gradient(165deg, rgba(250,245,232,0.03), transparent); opacity:0; transition: opacity 0.5s; }
+.oc:hover::before { opacity:1; }
+.oc:hover { transform: translateY(-8px); border-color: rgba(250,245,232,0.1); }
+.oc-r { font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; }
+.oc-n { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 400; color: var(--ivory); margin-bottom: 15px; }
+.oc-d { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; font-weight: 300; margin-bottom: 30px; }
+.oc-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+.oc-tag { font-size: 0.7rem; letter-spacing: 0.08em; padding: 6px 14px; border: 1px solid rgba(250,245,232,0.1); border-radius: 20px; color: var(--cream-soft); text-transform: uppercase; font-weight: 300; }
+
+/* Blends */
+.blends { background: var(--green-dark); }
+.bg { display: grid; grid-template-columns: repeat(3,1fr); gap: 40px; }
+.bc { text-align: center; cursor: pointer; transition: all 0.5s; }
+.bc:hover { transform: translateY(-10px); }
+.bv { width: 100%; aspect-ratio: 3/4; background: linear-gradient(170deg, var(--green-rich), var(--green-deep)); border-radius: 20px; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(250,245,232,0.04); transition: border-color 0.5s; position: relative; overflow: hidden; }
+.bc:hover .bv { border-color: rgba(250,245,232,0.12); }
+.bv-in { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.bv-c { width: 100px; height: 100px; border-radius: 50%; }
+.bc:nth-child(1) .bv-c { background: linear-gradient(135deg, #2a1a0a, #4a2a10); box-shadow: 0 20px 60px rgba(74,42,16,0.4); }
+.bc:nth-child(2) .bv-c { background: linear-gradient(135deg, #1a0e06, #3a1e0a); box-shadow: 0 20px 60px rgba(58,30,10,0.4); }
+.bc:nth-child(3) .bv-c { background: linear-gradient(135deg, #3a2a15, #5a3a1a); box-shadow: 0 20px 60px rgba(90,58,26,0.3); }
+.bv-l { font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-muted); }
+.bn { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 400; color: var(--ivory); margin-bottom: 8px; }
+.bd { font-size: 0.85rem; color: var(--text-muted); font-weight: 300; margin-bottom: 15px; }
+.bp { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; color: var(--yellow-pale); font-weight: 600; }
+
+/* ═══ RITUAL (IVORY) ═══ */
+.ritual { background: var(--ivory); color: var(--green-deep); position: relative; overflow: hidden; }
+.ritual::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse at 70% 30%, rgba(201,168,76,0.06), transparent 50%); pointer-events:none; }
+.ritual .s-label { color: var(--green-mid); }
+.ritual .s-label::before { background: var(--green-mid); }
+.ritual .s-head { color: var(--green-deep); max-width: 650px; }
+.ritual .s-head em { color: var(--green-mid); }
+.r-steps { display: grid; grid-template-columns: repeat(4,1fr); gap: 50px; position: relative; }
+.r-steps::before { content:''; position: absolute; top: 40px; left: 60px; right: 60px; height: 1px; background: rgba(11,26,14,0.08); }
+.r-step { text-align: center; position: relative; }
+.r-step-n { width: 80px; height: 80px; border-radius: 50%; background: var(--green-deep); color: var(--cream); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 300; margin: 0 auto 25px; position: relative; z-index: 2; }
+.r-step-t { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; color: var(--green-deep); margin-bottom: 10px; }
+.r-step-d { font-size: 0.85rem; color: rgba(11,26,14,0.5); font-weight: 300; line-height: 1.6; }
+
+/* ═══ PALE YELLOW TESTIMONIAL ═══ */
+.test-sec { background: var(--yellow-pale); color: var(--green-deep); position: relative; overflow: hidden; }
+.test-sec::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.1), transparent 60%); pointer-events:none; }
+.test-sec .s-label { color: var(--green-mid); }
+.test-sec .s-label::before { background: var(--green-mid); }
+.test-sec .s-head { color: var(--green-deep); }
+.test-sec .s-head em { color: var(--green-mid); }
+.tg { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+.tc { background: rgba(255,253,245,0.7); backdrop-filter: blur(10px); border: 1px solid rgba(11,26,14,0.06); border-radius: 20px; padding: 50px; transition: all 0.5s; }
+.tc:hover { transform: translateY(-4px); border-color: rgba(11,26,14,0.12); box-shadow: 0 20px 60px rgba(11,26,14,0.06); }
+.tc-stars { color: var(--gold); font-size: 0.9rem; letter-spacing: 4px; margin-bottom: 25px; }
+.tc-txt { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; font-weight: 300; font-style: italic; line-height: 1.5; color: var(--green-deep); margin-bottom: 30px; }
+.tc-name { font-family: 'Outfit'; font-size: 0.85rem; font-weight: 500; color: var(--green-deep); margin-bottom: 3px; }
+.tc-role { font-size: 0.75rem; color: rgba(11,26,14,0.45); font-weight: 300; }
+
+/* ═══ CTA / NEWSLETTER ═══ */
+.cta-sec { background: var(--green-deep); min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.cta-orbits { position: absolute; inset: 0; pointer-events: none; }
+.cta-orb { position: absolute; border: 1px solid rgba(250,245,232,0.03); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+.cta-orb:nth-child(1) { width: 250px; height: 250px; }
+.cta-orb:nth-child(2) { width: 450px; height: 450px; }
+.cta-orb:nth-child(3) { width: 650px; height: 650px; }
+.cta-orb:nth-child(4) { width: 850px; height: 850px; }
+.cta-form { display: flex; gap: 12px; position: relative; z-index: 2; }
+.cta-input { font-family: 'Outfit'; font-size: 0.9rem; padding: 18px 30px; border: 1px solid rgba(250,245,232,0.15); border-radius: 50px; background: rgba(250,245,232,0.05); color: var(--cream); width: 350px; outline: none; transition: border-color 0.3s; }
+.cta-input::placeholder { color: rgba(250,245,232,0.3); }
+.cta-input:focus { border-color: var(--cream); }
+.cta-btn { font-family: 'Outfit'; font-size: 0.85rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; padding: 18px 40px; border: none; border-radius: 50px; background: var(--cream); color: var(--green-deep); cursor: pointer; transition: all 0.4s; }
+.cta-btn:hover { background: var(--ivory); transform: scale(1.03); box-shadow: 0 15px 50px rgba(250,245,232,0.1); }
+
+/* ═══ WHITE FOOTER ═══ */
+footer { padding: 70px 50px 40px; background: var(--white); color: var(--green-deep); }
+.f-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; margin-bottom: 80px; }
+.f-logo { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 1.6rem; color: var(--green-deep); letter-spacing: 0.15em; text-transform: uppercase; }
+.f-desc { font-size: 0.9rem; color: rgba(11,26,14,0.5); line-height: 1.7; font-weight: 300; max-width: 300px; margin-top: 20px; }
+.f-col-t { font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(11,26,14,0.35); margin-bottom: 22px; }
+.f-col a { display: block; color: rgba(11,26,14,0.7); text-decoration: none; font-size: 0.88rem; font-weight: 300; margin-bottom: 14px; transition: color 0.3s; }
+.f-col a:hover { color: var(--green-mid); }
+.f-bot { display: flex; justify-content: space-between; align-items: center; padding-top: 30px; border-top: 1px solid rgba(11,26,14,0.08); }
+.f-copy { font-size: 0.75rem; color: rgba(11,26,14,0.35); font-weight: 300; }
+.f-soc { display: flex; gap: 25px; }
+.f-soc a { font-size: 0.75rem; color: rgba(11,26,14,0.35); text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase; transition: color 0.3s; font-weight: 400; }
+.f-soc a:hover { color: var(--green-mid); }
+
+/* Reveals */
+.rv { opacity: 0; transform: translateY(50px); transition: all 0.9s cubic-bezier(0.76,0,0.24,1); }
+.rv.vis { opacity: 1; transform: translateY(0); }
+.rd1 { transition-delay: 0.1s; }
+.rd2 { transition-delay: 0.2s; }
+.rd3 { transition-delay: 0.3s; }
+
+/* Responsive */
+@media (max-width:1024px) {
+  .og, .bg { grid-template-columns: 1fr 1fr; }
+  .r-steps { grid-template-columns: 1fr 1fr; }
+  .r-steps::before { display:none; }
+  .f-top { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width:768px) {
+  nav { padding: 20px 25px; }
+  .nav-links { display: none; }
+  section, .cream-band { padding: 80px 25px; }
+  .hero { padding: 0 25px; }
+  .cream-inner { grid-template-columns: 1fr; gap: 60px; }
+  .cream-vis { order: -1; }
+  .og, .bg, .tg { grid-template-columns: 1fr; }
+  .r-steps { grid-template-columns: 1fr; gap: 40px; }
+  .hero-ctas { flex-direction: column; }
+  .cta-form { flex-direction: column; align-items: center; }
+  .cta-input { width: 100%; max-width: 350px; }
+  .f-top { grid-template-columns: 1fr; gap: 40px; }
+  .cursor-dot, .cursor-ring { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor-dot" id="cDot"></div>
+<div class="cursor-ring" id="cRing"></div>
+
+<div class="loader" id="loader">
+  <div class="loader-brand">
+    <div class="loader-icon"></div>
+    <div class="loader-text">Soulfee</div>
+  </div>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+</div>
+
+<nav id="nav">
+  <a href="#" class="nav-logo hv">Soulfee</a>
+  <div class="nav-links">
+    <a href="#story" class="hv">Our Story</a>
+    <a href="#origins" class="hv">Origins</a>
+    <a href="#blends" class="hv">Blends</a>
+    <a href="#ritual" class="hv">Ritual</a>
+    <a href="#subscribe" class="hv nav-cta">Shop Now</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg">
+    <div class="hero-g1"></div>
+    <div class="hero-g2"></div>
+    <div class="hero-g3"></div>
+    <div class="hero-bean"></div>
+    <div class="hero-bean"></div>
+    <div class="hero-bean"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Specialty Coffee — Roasted with Soul</div>
+    <h1 class="hero-title">
+      <span class="line"><span class="line-inner">Coffee for</span></span>
+      <span class="line"><span class="line-inner">the <em>Soul</em></span></span>
+    </h1>
+    <p class="hero-sub">Every cup tells a story — from misty highlands where our beans are born to the quiet moment you take your first sip.</p>
+    <div class="hero-ctas">
+      <a href="#blends" class="btn-p hv">Explore Blends</a>
+      <a href="#story" class="btn-o hv">Our Story</a>
+    </div>
+  </div>
+  <div class="scroll-ind">
+    <span>Discover</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<div class="marquee">
+  <div class="marquee-track">
+    <div class="marquee-item">Single Origin <span class="dot"></span> Ethically Sourced <span class="dot"></span> Small Batch <span class="dot"></span> Direct Trade <span class="dot"></span> Hand Crafted <span class="dot"></span> Sustainably Grown <span class="dot"></span> Fresh Weekly <span class="dot"></span></div>
+    <div class="marquee-item">Single Origin <span class="dot"></span> Ethically Sourced <span class="dot"></span> Small Batch <span class="dot"></span> Direct Trade <span class="dot"></span> Hand Crafted <span class="dot"></span> Sustainably Grown <span class="dot"></span> Fresh Weekly <span class="dot"></span></div>
+  </div>
+</div>
+
+<div class="cream-band" id="story">
+  <div class="cream-inner">
+    <div class="cream-text">
+      <div class="s-label rv" style="color:var(--green-mid)"><span style="display:inline-block;width:25px;height:1px;background:var(--green-mid)"></span> Our Story</div>
+      <h2 class="rv">Where <em>nature's finest</em> meets timeless craft.</h2>
+      <p class="rv">Soulfee was born from a simple belief — that coffee is more than a drink. It's a ritual, a pause, a connection to something deeper. We travel to the world's most extraordinary growing regions, building lasting partnerships with farmers who share our reverence for the land.</p>
+      <div class="cream-feats rv">
+        <div class="cream-feat"><h4>Farm to Cup</h4><p>Direct relationships with growers across three continents.</p></div>
+        <div class="cream-feat"><h4>Small Batch</h4><p>Roasted in micro-lots to preserve each bean's character.</p></div>
+        <div class="cream-feat"><h4>Carbon Neutral</h4><p>Offsetting every step from farm to your doorstep.</p></div>
+        <div class="cream-feat"><h4>Fair Wages</h4><p>Paying 40% above fair trade minimums to our partners.</p></div>
+      </div>
+    </div>
+    <div class="cream-vis rv">
+      <div class="cup-c">
+        <div class="cup-o"></div>
+        <div class="cup-m"></div>
+        <div class="cup-i"><span>Soulfee</span></div>
+        <span class="cup-a">Est. 2019</span>
+        <span class="cup-a">Specialty Grade</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="origins" id="origins">
+  <div class="s-label rv">Our Origins</div>
+  <h2 class="s-head rv">From the world's finest <em>terroirs</em>.</h2>
+  <div class="og">
+    <div class="oc rv hv">
+      <div class="oc-r">East Africa</div>
+      <div class="oc-n">Ethiopian Yirgacheffe</div>
+      <div class="oc-d">From the birthplace of coffee, wild-grown heirloom varieties with a delicate, tea-like complexity.</div>
+      <div class="oc-tags"><span class="oc-tag">Floral</span><span class="oc-tag">Citrus</span><span class="oc-tag">Bergamot</span></div>
+    </div>
+    <div class="oc rv rd1 hv">
+      <div class="oc-r">Central America</div>
+      <div class="oc-n">Colombian Huila</div>
+      <div class="oc-d">High-altitude farms yielding beans with a rich sweetness and a velvety, full-bodied finish.</div>
+      <div class="oc-tags"><span class="oc-tag">Caramel</span><span class="oc-tag">Red Fruit</span><span class="oc-tag">Cocoa</span></div>
+    </div>
+    <div class="oc rv rd2 hv">
+      <div class="oc-r">Southeast Asia</div>
+      <div class="oc-n">Sumatra Mandheling</div>
+      <div class="oc-d">Wet-hulled processing creates an earthy depth with low acidity and a syrupy, lingering body.</div>
+      <div class="oc-tags"><span class="oc-tag">Earthy</span><span class="oc-tag">Cedar</span><span class="oc-tag">Dark Chocolate</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="blends" id="blends">
+  <div class="s-label rv">Our Blends</div>
+  <h2 class="s-head rv">Crafted to <em>move</em> you.</h2>
+  <div class="bg">
+    <div class="bc rv hv">
+      <div class="bv"><div class="bv-in"><div class="bv-c"></div><span class="bv-l">Light Roast</span></div></div>
+      <div class="bn">Morning Mist</div>
+      <div class="bd">Bright · Floral · Honey</div>
+      <div class="bp">$22</div>
+    </div>
+    <div class="bc rv rd1 hv">
+      <div class="bv"><div class="bv-in"><div class="bv-c"></div><span class="bv-l">Medium Roast</span></div></div>
+      <div class="bn">Soul Reserve</div>
+      <div class="bd">Balanced · Nutty · Caramel</div>
+      <div class="bp">$26</div>
+    </div>
+    <div class="bc rv rd2 hv">
+      <div class="bv"><div class="bv-in"><div class="bv-c"></div><span class="bv-l">Dark Roast</span></div></div>
+      <div class="bn">Midnight Ember</div>
+      <div class="bd">Bold · Smoky · Bittersweet</div>
+      <div class="bp">$24</div>
+    </div>
+  </div>
+</section>
+
+<section class="ritual" id="ritual">
+  <div class="s-label rv">The Ritual</div>
+  <h2 class="s-head rv">The perfect cup, <em>every time</em>.</h2>
+  <div class="r-steps">
+    <div class="r-step rv">
+      <div class="r-step-n">01</div>
+      <div class="r-step-t">Measure</div>
+      <div class="r-step-d">18g of freshly ground Soulfee beans. Coarse for press, medium for pour-over.</div>
+    </div>
+    <div class="r-step rv rd1">
+      <div class="r-step-n">02</div>
+      <div class="r-step-t">Bloom</div>
+      <div class="r-step-d">Pour 50ml of water at 93°C. Wait 30 seconds. Watch the magic unfold.</div>
+    </div>
+    <div class="r-step rv rd2">
+      <div class="r-step-n">03</div>
+      <div class="r-step-t">Brew</div>
+      <div class="r-step-d">Continue pouring in slow, concentric circles. Total brew time: 3–4 minutes.</div>
+    </div>
+    <div class="r-step rv rd3">
+      <div class="r-step-n">04</div>
+      <div class="r-step-t">Savour</div>
+      <div class="r-step-d">Close your eyes. Take the first sip. Let the origin speak to your soul.</div>
+    </div>
+  </div>
+</section>
+
+<section class="test-sec">
+  <div class="s-label rv">Kind Words</div>
+  <h2 class="s-head rv">What our <em>community</em> says.</h2>
+  <div class="tg">
+    <div class="tc rv hv">
+      <div class="tc-stars">★★★★★</div>
+      <div class="tc-txt">"Soulfee changed my mornings completely. The Ethiopian blend is like nothing I've ever tasted — delicate, complex, and somehow feels like home."</div>
+      <div class="tc-name">Priya Sharma</div>
+      <div class="tc-role">Architect & Morning Ritualist</div>
+    </div>
+    <div class="tc rv rd1 hv">
+      <div class="tc-stars">★★★★★</div>
+      <div class="tc-txt">"I've tried every specialty roaster out there. Soulfee is the one that made me stop looking. The Soul Reserve is absolute perfection."</div>
+      <div class="tc-name">Marcus Laine</div>
+      <div class="tc-role">Food Writer, The Morning Edit</div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-sec" id="subscribe">
+  <div class="cta-orbits">
+    <div class="cta-orb"></div><div class="cta-orb"></div><div class="cta-orb"></div><div class="cta-orb"></div>
+  </div>
+  <div class="s-label rv">Join the Ritual</div>
+  <h2 class="s-head rv" style="text-align:center; max-width:600px;">Stay close to the <em>source</em>.</h2>
+  <p class="rv" style="font-size:1rem; color:var(--text-cream); font-weight:300; max-width:420px; text-align:center; margin-bottom:40px; line-height:1.7;">First access to new origins, brewing guides, and 10% off your first order.</p>
+  <form class="cta-form rv" onsubmit="event.preventDefault();">
+    <input type="email" class="cta-input" placeholder="Your email address">
+    <button type="submit" class="cta-btn hv">Subscribe</button>
+  </form>
+</section>
+
+<footer>
+  <div class="f-top">
+    <div>
+      <div class="f-logo">Soulfee</div>
+      <p class="f-desc">Specialty coffee roasted with intention. From the world's finest farms to your morning ritual.</p>
+    </div>
+    <div>
+      <div class="f-col-t">Explore</div>
+      <div class="f-col">
+        <a href="#story" class="hv">Our Story</a>
+        <a href="#origins" class="hv">Origins</a>
+        <a href="#blends" class="hv">Blends</a>
+        <a href="#ritual" class="hv">Brewing Guide</a>
+      </div>
+    </div>
+    <div>
+      <div class="f-col-t">Company</div>
+      <div class="f-col">
+        <a href="#" class="hv">Sustainability</a>
+        <a href="#" class="hv">Wholesale</a>
+        <a href="#" class="hv">Careers</a>
+        <a href="#" class="hv">Press</a>
+      </div>
+    </div>
+    <div>
+      <div class="f-col-t">Connect</div>
+      <div class="f-col">
+        <a href="#" class="hv">Instagram</a>
+        <a href="#" class="hv">TikTok</a>
+        <a href="#" class="hv">Pinterest</a>
+        <a href="mailto:hello@soulfee.co" class="hv">hello@soulfee.co</a>
+      </div>
+    </div>
+  </div>
+  <div class="f-bot">
+    <span class="f-copy">© 2025 Soulfee. All rights reserved.</span>
+    <div class="f-soc">
+      <a href="#" class="hv">IG</a>
+      <a href="#" class="hv">TK</a>
+      <a href="#" class="hv">PT</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('load', () => { setTimeout(() => document.getElementById('loader').classList.add('hidden'), 2100); });
+
+const dot = document.getElementById('cDot'), ring = document.getElementById('cRing');
+let mx=0, my=0, rx=0, ry=0;
+document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; dot.style.left=mx-4+'px'; dot.style.top=my-4+'px'; });
+function aRing() { rx+=(mx-rx)*0.1; ry+=(my-ry)*0.1; ring.style.left=rx-22+'px'; ring.style.top=ry-22+'px'; requestAnimationFrame(aRing); }
+aRing();
+document.querySelectorAll('.hv').forEach(el => { el.addEventListener('mouseenter', () => ring.classList.add('hover')); el.addEventListener('mouseleave', () => ring.classList.remove('hover')); });
+
+window.addEventListener('scroll', () => { document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 80); });
+
+const obs = new IntersectionObserver(entries => { entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('vis'); obs.unobserve(e.target); } }); }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.rv').forEach(el => obs.observe(el));
+
+document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', e => { e.preventDefault(); const t = document.querySelector(a.getAttribute('href')); if(t) t.scrollIntoView({ behavior:'smooth', block:'start' }); }); });
+
+window.addEventListener('scroll', () => { const s = window.scrollY; document.querySelectorAll('.hero-bean').forEach((b,i) => { b.style.transform = `translateY(${s*(0.1+i*0.05)}px) rotate(${30+i*20+s*0.02}deg)`; }); });
+
+document.querySelectorAll('.oc, .bc, .tc').forEach(card => {
+  card.addEventListener('mousemove', e => { const r=card.getBoundingClientRect(); const x=(e.clientX-r.left)/r.width-0.5; const y=(e.clientY-r.top)/r.height-0.5; card.style.transform=`translateY(-8px) perspective(800px) rotateX(${-y*4}deg) rotateY(${x*4}deg)`; });
+  card.addEventListener('mouseleave', () => { card.style.transform='translateY(0) perspective(800px) rotateX(0) rotateY(0)'; });
+});
+</script>
+</body>
+</html>
